@@ -13,24 +13,64 @@ interface Traits {
   Coffee?: string;
 }
 
+interface NFTAttribute {
+  value: string;
+  trait_type: string;
+}
+
+interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string;
+  attributes: NFTAttribute[];
+}
+
 export default function IPPack() {
   const [id, setId] = useState("");
   const [getPack, setGetPack] = useState(false);
   const [metadata, setMetadata] = useState<Traits | null>(null);
+  const [nftData, setNftData] = useState<NFTMetadata | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
     setGetPack(true);
+    loadNFTMetadata();
   };
 
-  useEffect(() => {
-    if (getPack) {
-      // Load metadata.json when NFT generation is triggered
-      fetch('/metadata.json')
-        .then(response => response.json())
-        .then(data => setMetadata(data))
-        .catch(error => console.error('Error loading metadata:', error));
+  const loadNFTMetadata = async () => {
+    if (!id.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`/metadata/${id.trim()}`);
+      
+      if (!response.ok) {
+        throw new Error(`NFT #${id} not found`);
+      }
+      
+      const nftMetadata: NFTMetadata = await response.json();
+      setNftData(nftMetadata);
+      
+      // Convert attributes array to traits object for NFTRenderer
+      const traits: Traits = {};
+      nftMetadata.attributes.forEach(attr => {
+        const traitType = attr.trait_type as keyof Traits;
+        traits[traitType] = attr.value.trim();
+      });
+      
+      setMetadata(traits);
+    } catch (error) {
+      console.error('Error loading NFT metadata:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load NFT data');
+      setMetadata(null);
+      setNftData(null);
+    } finally {
+      setLoading(false);
     }
-  }, [getPack]);
+  };
 
   // Generate the four different versions
   const generateVersions = () => {
@@ -121,6 +161,11 @@ export default function IPPack() {
                   type="text"
                   value={id}
                   onChange={(e) => setId(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && id.trim() && !loading) {
+                      handleSubmit();
+                    }
+                  }}
                   placeholder="Enter your ID..."
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg 
                            text-white placeholder-white/50 focus:outline-none focus:ring-2 
@@ -131,10 +176,8 @@ export default function IPPack() {
 
               <button
                 type="button"
-                disabled={!id.trim()}
-                onClick={() => {
-                  handleSubmit();
-                }}
+                disabled={!id.trim() || loading}
+                onClick={handleSubmit}
                 className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-purple-600 
                          hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 
                          disabled:to-gray-700 disabled:cursor-not-allowed rounded-lg 
@@ -142,7 +185,7 @@ export default function IPPack() {
                          hover:scale-[1.02] active:scale-[0.98] shadow-lg
                          disabled:hover:scale-100"
               >
-                {id.trim() ? 'Access IP Pack' : 'Enter ID to Continue'}
+                {loading ? 'Loading...' : id.trim() ? 'Access IP Pack' : 'Enter ID to Continue'}
               </button>
             </div>
           </div>
@@ -154,7 +197,31 @@ export default function IPPack() {
             </p>
           </div>
 
-          {getPack && metadata && (
+          {/* Error State */}
+          {error && (
+            <div className="mt-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-red-400 text-center">{error}</p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="mt-8 text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
+              <p className="text-white/60">Loading NFT data...</p>
+            </div>
+          )}
+
+          {/* NFT Information */}
+          {nftData && (
+            <div className="mt-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-white mb-2">{nftData.name}</h3>
+              <p className="text-white/70 text-sm leading-relaxed">{nftData.description}</p>
+            </div>
+          )}
+
+          {/* NFT Variations */}
+          {getPack && metadata && !loading && (
             <div className="mt-12">
               <h2 className="text-3xl font-bold text-center mb-8">Your NFT Variations</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

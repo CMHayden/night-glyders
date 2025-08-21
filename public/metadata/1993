@@ -1,0 +1,31 @@
+{
+  "name": "NightGlyder #1993",
+  "description": "NightGlyders is a sanctuary for explorers, visionaries, and collectors drawn to the expanding universe of ApeChain. Rooted in the magic of the Notca Fruit’s rupture, each Glyder carries unique traits, forming a vibrant collection of 3,333 mystical beings. Together, we push forward the culture, technology, and community of web3 on ApeChain.",
+  "image": "ipfs://bafybeih7cmapl2jiop7slb5l762dzpqnfbggokovhc65zegql5hkr5xthe/1993.png",
+  "attributes": [
+    {
+      "value": "Bullish Blue",
+      "trait_type": "Background"
+    },
+    {
+      "value": "Graphite Gray",
+      "trait_type": "Body"
+    },
+    {
+      "value": "Blazing Blades",
+      "trait_type": "Eyes"
+    },
+    {
+      "value": "Wicked Wizard",
+      "trait_type": "Head"
+    },
+    {
+      "value": "Teeny Teeth",
+      "trait_type": "Mouth"
+    },
+    {
+      "value": "Sparky Skeleton",
+      "trait_type": "Wings"
+    }
+  ]
+}

@@ -23,7 +23,7 @@ export default function NFTRenderer({ traits, size = 200, className = "" }: NFTR
     { trait: traits.Wings, folder: "Wings" },
     { trait: traits.Coffee || traits.Body, folder: traits.Coffee ? "Coffee" : "Body" },
     { trait: traits.Eyes, folder: "Eyes" },
-    { trait: traits.Mouth, folder: "Mouth" },
+    { trait: traits.Mouth && traits.Mouth !== "Mouthless" ? traits.Mouth : undefined, folder: "Mouth" },
     { trait: traits.Head, folder: "Head" },
   ];
 
